@@ -1,0 +1,9 @@
+fastapi
+fastapi[standard]
+uvicorn
+mysql-connector-python
+bcrypt
+cryptography
+pydantic
+python-dotenv
+pydantic-settings
