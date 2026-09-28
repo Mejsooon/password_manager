@@ -9,7 +9,7 @@ import secrets
 from datetime import datetime, timedelta, timezone
 
 
-def UsernameAlreadyExistsError(Exception):
+class UsernameAlreadyExistsError(Exception):
     pass
 
 
@@ -19,7 +19,7 @@ def register_user(user_data: UserCreate) -> User:
     if existing_user is not None:
         raise UsernameAlreadyExistsError("Nazwa użytkownika jest już zajęta")
 
-    password_hash = bcrypt.hashpw(user_data.passsowrd.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    password_hash = bcrypt.hashpw(user_data.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
     # user_data.passsowrd.encode("utf-8") > Pobieramy hasło w postaci <string> i zamieniamy na <bytes>
 
