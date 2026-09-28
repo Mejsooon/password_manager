@@ -12,7 +12,7 @@ def get_connection() -> MySQLConnection:
         port=settings.db_port,
         user=settings.db_user,
         password=settings.db_password,
-        database=settings.db_db
+        database=settings.db_name,
     )
 
 def execute(query: str, params: tuple = (), fetch: str | None = None):
