@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Response, Cookie, Request
+from fastapi import APIRouter, HTTPException, status, Response, Request
 from app.schemas.auth import UserCreate, UserLogin, UserResponse
 from app.services import auth_service
 
