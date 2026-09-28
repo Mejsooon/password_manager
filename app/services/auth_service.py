@@ -64,3 +64,20 @@ def logout(session_token: str) -> None:
     token_hash = hashlib.sha256(session_token.encode("utf-8")).hexdigest()
 
     session_repository.delete_by_token_hash(token_hash)
+
+
+def get_current_user(session_token: str) -> User | None:
+    token_hash = hashlib.sha256(session_token.encode("utf-8")).hexdigest()
+
+    session = session_repository.find_by_token_hash(token_hash)
+
+    if session is None:
+        return None
+
+    current_time = datetime.now(timezone.utc).replace(tzinfo=None)
+
+    if session.expires_at <= current_time:
+        session_repository.delete_by_token_hash(token_hash)
+        return None
+
+    return user_repository.find_by_id(session.user_id)
