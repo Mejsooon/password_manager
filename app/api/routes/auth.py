@@ -1,8 +1,12 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Response, Cookie
 from app.schemas.auth import UserCreate, UserLogin, UserResponse
 from app.services import auth_service
 
+
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+SESSION_COOKIE_NAME = "session_token"
+SESSION_MAX_AGE = 60 * 60 * 24 * 7  # 7 dni
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
@@ -23,4 +27,25 @@ def login(credentials: UserLogin):
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
 
+    session_token = auth_service.create_session(user.id)
+
+    Response.set_cookie(
+        key=SESSION_COOKIE_NAME,
+        value=session_token,
+        max_age=SESSION_MAX_AGE,
+        httponly=True,
+        samesite="Lax",
+        secure=False,
+        path="/",
+    )
+
     return user
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(response: Response, session_token: str | None = Cookie(default=None)):
+
+    if session_token is not None:
+        auth_service.logout(session_token)
+
+    response.delete_cookie(key=SESSION_COOKIE_NAME, path="/")
