@@ -1,6 +1,8 @@
-from fastapi import APIRouter, HTTPException, status, Response, Request
+from fastapi import APIRouter, HTTPException, status, Response, Request, Depends
 from app.schemas.auth import UserCreate, UserLogin, UserResponse
 from app.services import auth_service
+from app.models.models import User
+from app.api.dependencies import get_current_user
 
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -51,3 +53,8 @@ def logout(response: Response, request: Request):
         auth_service.logout(session_token)
 
     response.delete_cookie(key=SESSION_COOKIE_NAME, path="/")
+
+
+@router.get("/me", response_model=UserResponse)
+def get_me(current_user: User = Depends(get_current_user)):
+    return current_user
