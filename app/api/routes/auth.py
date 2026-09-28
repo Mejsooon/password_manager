@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Response, Cookie
+from fastapi import APIRouter, HTTPException, status, Response, Cookie, Request
 from app.schemas.auth import UserCreate, UserLogin, UserResponse
 from app.services import auth_service
 
@@ -21,7 +21,7 @@ def register(user_data: UserCreate):
 
 
 @router.post("/login", response_model=UserResponse)
-def login(credentials: UserLogin):
+def login(credentials: UserLogin, response: Response):
     user = auth_service.authenticate(username=credentials.username, password=credentials.password)
 
     if user is None:
@@ -29,7 +29,7 @@ def login(credentials: UserLogin):
 
     session_token = auth_service.create_session(user.id)
 
-    Response.set_cookie(
+    response.set_cookie(
         key=SESSION_COOKIE_NAME,
         value=session_token,
         max_age=SESSION_MAX_AGE,
@@ -43,7 +43,9 @@ def login(credentials: UserLogin):
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-def logout(response: Response, session_token: str | None = Cookie(default=None)):
+def logout(response: Response, request: Request):
+
+    session_token=request.cookies.get(SESSION_COOKIE_NAME)
 
     if session_token is not None:
         auth_service.logout(session_token)
