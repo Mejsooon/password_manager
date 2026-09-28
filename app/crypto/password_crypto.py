@@ -1,6 +1,6 @@
 import base64
 import os
-from cryptography.hazmat.primitives.ciphers.aed import AESGCM
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from app.core.config import settings
 
 def decode_key(key_text: str) -> bytes:
