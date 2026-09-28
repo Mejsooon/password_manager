@@ -4,6 +4,10 @@ from app.models.models import User
 from app.repositories import user_repository
 from app.schemas.auth import UserCreate
 
+import hashlib
+import secrets
+from datetime import datetime, timedelta, timezone
+
 
 def UsernameAlreadyExistsError(exception):
     pass
@@ -34,3 +38,33 @@ def authenticate_user(username: str, password: str) -> User:
         return None
 
     return user
+
+
+SESSION_DURATION = timedelta(days=7)
+
+def create_session(user_id: int) -> str:
+    session_token = secrets.token_urlsafe(32)
+
+    token_hash = hashlib.sha256(session_token.encode("utf-8")).hexdigest()
+
+    expires_at = (datetime.now(timezone.utc) + SESSION_DURATION).replace(tzinfo=None)
+
+    session = Session(
+        id=None,
+        user_id=user_id,
+        token_hash=token_hash,
+        expires_at=expires_at,
+        created_at=None,
+    )
+
+    session_repository.save(session)
+
+    return session_token
+
+
+def logout(session_token: str) -> None:
+    token_hash = hashlib.sha256(
+        session_token.encode("utf-8")
+    ).hexdigest()
+
+    session_repository.delete_by_token_hash(token_hash)
