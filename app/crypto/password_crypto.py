@@ -27,7 +27,7 @@ def encrypt_password(password: str) -> dict[str, str]:
 
     ciphertext = aes.encrypt(nonce, password.encode("utf-8"), None)
 
-    return {"nonce": base64.b64encode(nonce).decode("ascii"), "cipher": base64.b64encode(ciphertext).decode("ascii")}
+    return {"nonce": base64.b64encode(nonce).decode("ascii"), "ciphertext": base64.b64encode(ciphertext).decode("ascii")}
 
 
 def decrypt_password(nonce_text: str, ciphertext_text: str) -> str:

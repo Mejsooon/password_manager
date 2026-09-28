@@ -13,7 +13,7 @@ def row_to_session(row:dict) -> Session:
 
 
 def find_by_token_hash(token_hash:str) -> Session | None:
-    row = execute("SELECT id, user_id, token_hash, expires_at, create_at FROM sessions WHERE token_hash = %s", (token_hash,), fetch="one")
+    row = execute("SELECT id, user_id, token_hash, expires_at, created_at FROM sessions WHERE token_hash = %s", (token_hash,), fetch="one")
 
     if row is None:
         return None
