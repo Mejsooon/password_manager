@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import bcrypt
 
 from app.models.models import User
