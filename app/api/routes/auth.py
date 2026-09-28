@@ -18,7 +18,7 @@ def register(user_data: UserCreate):
 
 @router.post("/login", response_model=UserResponse)
 def login(credentials: UserLogin):
-    user = auth.service.authenticate(username=credentials.username, password=credentials.password)
+    user = auth_service.authenticate(username=credentials.username, password=credentials.password)
 
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
