@@ -37,7 +37,7 @@ def login(credentials: UserLogin, response: Response):
         max_age=SESSION_MAX_AGE,
         httponly=True,
         samesite="Lax",
-        secure=False,
+        secure=True,
         path="/",
     )
 
