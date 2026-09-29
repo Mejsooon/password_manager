@@ -8,4 +8,4 @@ pydantic
 python-dotenv
 pydantic-settings
 pytest
-httpx
+httpx2
