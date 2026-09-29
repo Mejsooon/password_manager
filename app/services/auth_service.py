@@ -21,10 +21,6 @@ def register_user(user_data: UserCreate) -> User:
 
     password_hash = bcrypt.hashpw(user_data.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
-    # user_data.passsowrd.encode("utf-8") > Pobieramy hasło w postaci <string> i zamieniamy na <bytes>
-
-    # .decode("utf-8") > Otrzymujem zahashowane hasło i zamieniamy je z powrotem na <string>
-
     user = User(id = None, username=user_data.username, password_hash=password_hash, created_at=None)
 
     return user_repository.save(user)
