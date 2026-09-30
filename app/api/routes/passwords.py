@@ -52,6 +52,14 @@ def get_password(password_id: int, current_user: User = Depends(get_current_user
     )
 
 
+@router.put("/{password_id}", response_model=PasswordResponse)
+def update_password(password_id: int, password_data: PasswordCreate, current_user: User = Depends(get_current_user)):
+
+    password = password_service.update_password(current_user=current_user, password_id=password_id, password_data=password_data,)
+
+    return PasswordResponse(id=password.id, name=password.name, username=password.username, password=password_data.password,)
+
+
 @router.delete("/{password_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_password(password_id: int, current_user: User = Depends(get_current_user)):
 
