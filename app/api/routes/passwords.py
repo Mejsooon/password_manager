@@ -24,9 +24,8 @@ def create_password(password_data: PasswordCreate, current_user: User = Depends(
 
 
 @router.get("", response_model=list[PasswordResponse])
-def get_passwords(current_user: User = Depends(get_current_user),):
-
-    passwords = password_service.get_passwords(current_user=current_user)
+def get_passwords(q: str | None = None, current_user: User = Depends(get_current_user)):
+    passwords = password_service.get_passwords(current_user=current_user, search=q)
 
     return [
         PasswordResponse(
