@@ -129,3 +129,20 @@ def test_unauthenticated_user_cannot_access_passwords(client):
     response = client.get("/passwords")
 
     assert response.status_code == 401
+
+
+def test_update_password(authenticated_client):
+    create_response = authenticated_client.post("/passwords",json={"name": "GitHub", "username": "old@example.com", "password": "OldPassword123!",})
+
+    password_id = cast(int, create_response.json()["id"])
+
+    response = authenticated_client.put(f"/passwords/{password_id}", json={"name": "GitHub Updated", "username": "new@example.com", "password": "NewPassword456!",})
+
+    assert response.status_code == 200
+
+    assert response.json() == {
+        "id": password_id,
+        "name": "GitHub Updated",
+        "username": "new@example.com",
+        "password": "NewPassword456!",
+    }
