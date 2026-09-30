@@ -2,9 +2,7 @@ from app.crypto.password_crypto import decrypt_password, encrypt_password
 from app.models.models import User, Password
 from app.repositories import password_repository
 from app.schemas.password import PasswordCreate
-
-class PasswordNotFoundError(Exception):
-    pass
+from app.core.exceptions import PasswordNotFoundError
 
 
 def create_password(current_user: User, password_data: PasswordCreate) -> Password:
@@ -36,7 +34,7 @@ def get_password(current_user: User, password_id: int) -> Password:
     password = password_repository.find_by_id(password_id=password_id, user_id=current_user.id)
 
     if password is None:
-        raise PasswordNotFoundError("Password not found")
+        raise PasswordNotFoundError()
 
     password.ciphertext = decrypt_password(password.nonce, password.ciphertext)
 
@@ -47,6 +45,6 @@ def delete_password(current_user: User, password_id: int) -> None:
     password = password_repository.find_by_id(password_id=password_id, user_id=current_user.id)
 
     if password is None:
-        raise PasswordNotFoundError("Password not found")
+        raise PasswordNotFoundError()
 
     password_repository.delete_by_id(password_id=password_id, user_id=current_user.id)
