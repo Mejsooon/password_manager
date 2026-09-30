@@ -54,7 +54,7 @@ def test_register_duplicate_username(client):
 
     assert response.status_code == 409
 
-    assert response.json() == {"detail": "Nazwa użytkownika jest już zajęta"}
+    assert response.json() == {"detail": "Username already exists"}
 
 
 def test_login(client):
