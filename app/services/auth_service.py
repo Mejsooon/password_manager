@@ -4,20 +4,18 @@ from app.models.models import User, Session
 from app.repositories import user_repository, session_repository
 from app.schemas.auth import UserCreate
 
+from app.core.exceptions import (InvalidCredentialsError, SessionInvalidError, UsernameAlreadyExistsError)
+
 import hashlib
 import secrets
 from datetime import datetime, timedelta, timezone
-
-
-class UsernameAlreadyExistsError(Exception):
-    pass
 
 
 def register_user(user_data: UserCreate) -> User:
     existing_user = user_repository.find_by_username(user_data.username)
 
     if existing_user is not None:
-        raise UsernameAlreadyExistsError("Nazwa użytkownika jest już zajęta")
+        raise UsernameAlreadyExistsError()
 
     password_hash = bcrypt.hashpw(user_data.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
@@ -30,7 +28,7 @@ def authenticate(username: str, password: str) -> User | None:
     user = user_repository.find_by_username(username)
 
     if user is None:
-        return None
+        raise InvalidCredentialsError()
 
     password_matches = bcrypt.checkpw(password.encode("utf-8"), user.password_hash.encode("utf-8"))
 
@@ -74,6 +72,6 @@ def get_current_user(session_token: str) -> User | None:
 
     if session.expires_at <= current_time:
         session_repository.delete_by_token_hash(token_hash)
-        return None
+        raise SessionInvalidError()
 
     return user_repository.find_by_id(session.user_id)
