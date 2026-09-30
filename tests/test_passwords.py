@@ -82,6 +82,47 @@ def test_get_password(authenticated_client):
     }
 
 
+def test_search_passwords(authenticated_client):
+    authenticated_client.post("/passwords", json={"name": "GitHub", "username": "mikolaj@example.com", "password": "GitHubPassword!"})
+    authenticated_client.post("/passwords", json={"name": "Gmail", "username": "mikolaj@gmail.com", "password": "GmailPassword!"})
+
+    response = authenticated_client.get("/passwords?q=GitHub")
+
+    assert response.status_code == 200
+
+    passwords = response.json()
+
+    assert len(passwords) == 1
+    assert passwords[0]["name"] == "GitHub"
+    assert passwords[0]["username"] == "mikolaj@example.com"
+    assert passwords[0]["password"] == "GitHubPassword!"
+
+
+def test_search_passwords_by_username(authenticated_client):
+    authenticated_client.post("/passwords", json={"name": "GitHub", "username": "mikolaj@example.com", "password": "GitHubPassword!"})
+    authenticated_client.post("/passwords", json={"name": "Gmail", "username": "mikolaj@gmail.com", "password": "GmailPassword!"})
+
+    response = authenticated_client.get("/passwords?q=example.com")
+
+    assert response.status_code == 200
+
+    passwords = response.json()
+
+    assert len(passwords) == 1
+    assert passwords[0]["name"] == "GitHub"
+    assert passwords[0]["username"] == "mikolaj@example.com"
+    assert passwords[0]["password"] == "GitHubPassword!"
+
+
+def test_search_passwords_no_results(authenticated_client):
+    authenticated_client.post("/passwords", json={"name": "GitHub", "username": "mikolaj@example.com", "password": "GitHubPassword!"})
+
+    response = authenticated_client.get("/passwords?q=Facebook")
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
 def test_get_nonexistent_password(authenticated_client):
     response = authenticated_client.get("/passwords/999999")
 
