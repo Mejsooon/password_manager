@@ -24,7 +24,7 @@ def register_user(user_data: UserCreate) -> User:
     return user_repository.save(user)
 
 
-def authenticate(username: str, password: str) -> User | None:
+def authenticate(username: str, password: str) -> User:
     user = user_repository.find_by_username(username)
 
     if user is None:
@@ -61,14 +61,14 @@ def logout(session_token: str) -> None:
     session_repository.delete_by_token_hash(token_hash)
 
 
-def get_current_user(session_token: str) -> User | None:
+def get_current_user(session_token: str) -> User:
 
     token_hash = hashlib.sha256(session_token.encode("utf-8")).hexdigest()
 
     session = session_repository.find_by_token_hash(token_hash)
 
     if session is None:
-        return None
+        raise SessionInvalidError()
 
     current_time = datetime.now(timezone.utc).replace(tzinfo=None)
 
