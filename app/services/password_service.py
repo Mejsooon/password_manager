@@ -48,3 +48,19 @@ def delete_password(current_user: User, password_id: int) -> None:
         raise PasswordNotFoundError()
 
     password_repository.delete_by_id(password_id=password_id, user_id=current_user.id)
+
+
+def update_password(current_user: User, password_id: int, password_data: PasswordCreate) -> Password:
+    password = password_repository.find_by_id(password_id=password_id, user_id=current_user.id,)
+
+    if password is None:
+        raise PasswordNotFoundError()
+
+    encrypted_data = encrypt_password(password_data.password)
+
+    password.name = password_data.name
+    password.username = password_data.username
+    password.nonce = encrypted_data["nonce"]
+    password.ciphertext = encrypted_data["ciphertext"]
+
+    return password_repository.update(password)
