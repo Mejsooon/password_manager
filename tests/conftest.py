@@ -41,3 +41,12 @@ def clean_database():
 def client(clean_database):
     with TestClient(app, base_url="https://testserver",) as test_client:
         yield test_client
+
+
+@pytest.fixture
+def authenticated_client(client):
+    client.post("/auth/register", json={"username": "mikolaj", "password": "Test123!"})
+
+    client.post("/auth/login", json={"username": "mikolaj", "password": "Test123!"})
+
+    return client
