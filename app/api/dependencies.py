@@ -13,6 +13,6 @@ def get_current_user(request: Request) -> User:
     user = auth_service.get_current_user(session_token)
 
     if user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session Expired")
+        raise SessionInvalidError()
 
     return user
