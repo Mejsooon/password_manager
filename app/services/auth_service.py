@@ -33,7 +33,7 @@ def authenticate(username: str, password: str) -> User | None:
     password_matches = bcrypt.checkpw(password.encode("utf-8"), user.password_hash.encode("utf-8"))
 
     if not password_matches:
-        return None
+        raise InvalidCredentialsError()
 
     return user
 
@@ -41,6 +41,7 @@ def authenticate(username: str, password: str) -> User | None:
 SESSION_DURATION = timedelta(days=7)
 
 def create_session(user_id: int) -> str:
+
     session_token = secrets.token_urlsafe(32)
 
     token_hash = hashlib.sha256(session_token.encode("utf-8")).hexdigest()
@@ -61,6 +62,7 @@ def logout(session_token: str) -> None:
 
 
 def get_current_user(session_token: str) -> User | None:
+
     token_hash = hashlib.sha256(session_token.encode("utf-8")).hexdigest()
 
     session = session_repository.find_by_token_hash(token_hash)
