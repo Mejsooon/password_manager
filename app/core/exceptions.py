@@ -10,7 +10,7 @@ class AppException(Exception):
 
 class UsernameAlreadyExistsError(AppException):
     status_code = 409
-    detail = "Nazwa użytkownika jest już zajęta."
+    detail = "Username already exists"
 
 
 class InvalidCredentialsError(AppException):
@@ -20,7 +20,7 @@ class InvalidCredentialsError(AppException):
 
 class PasswordNotFoundError(AppException):
     status_code = 404
-    detail = "Hasło nie istnieje."
+    detail = "Password not found"
 
 
 class SessionInvalidError(AppException):
