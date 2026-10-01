@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 
 from app.api.dependencies import get_current_user
 from app.models.models import User
@@ -24,8 +24,8 @@ def create_password(password_data: PasswordCreate, current_user: User = Depends(
 
 
 @router.get("", response_model=list[PasswordResponse])
-def get_passwords(q: str | None = None, current_user: User = Depends(get_current_user)):
-    passwords = password_service.get_passwords(current_user=current_user, search=q)
+def get_passwords(q: str | None = None, limit: int = Query(default=20, ge=1, le=100), offset: int = Query(default=0, ge=0), current_user: User = Depends(get_current_user)):
+    passwords = password_service.get_passwords(current_user=current_user, search=q, limit=limit, offset=offset)
 
     return [
         PasswordResponse(
