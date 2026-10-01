@@ -187,3 +187,66 @@ def test_update_password(authenticated_client):
         "username": "new@example.com",
         "password": "NewPassword456!",
     }
+
+
+def test_passwords_limit(authenticated_client):
+    authenticated_client.post("/passwords", json={"name": "GitHub", "username": "github@example.com", "password": "GitHubPassword!"})
+    authenticated_client.post("/passwords", json={"name": "Gmail", "username": "gmail@example.com", "password": "GmailPassword!"})
+    authenticated_client.post("/passwords", json={"name": "Discord", "username": "discord@example.com", "password": "DiscordPassword!"})
+
+    response = authenticated_client.get("/passwords?limit=2")
+
+    assert response.status_code == 200
+
+    passwords = response.json()
+
+    assert len(passwords) == 2
+    assert passwords[0]["name"] == "GitHub"
+    assert passwords[1]["name"] == "Gmail"
+
+
+def test_passwords_offset(authenticated_client):
+    authenticated_client.post("/passwords", json={"name": "GitHub", "username": "github@example.com", "password": "GitHubPassword!"})
+    authenticated_client.post("/passwords", json={"name": "Gmail", "username": "gmail@example.com", "password": "GmailPassword!"})
+    authenticated_client.post("/passwords", json={"name": "Discord", "username": "discord@example.com", "password": "DiscordPassword!"})
+
+    response = authenticated_client.get("/passwords?limit=2&offset=1")
+
+    assert response.status_code == 200
+
+    passwords = response.json()
+
+    assert len(passwords) == 2
+    assert passwords[0]["name"] == "Gmail"
+    assert passwords[1]["name"] == "Discord"
+
+
+def test_search_passwords_with_pagination(authenticated_client):
+    authenticated_client.post("/passwords", json={"name": "GitHub", "username": "github1@example.com", "password": "Password1!"})
+    authenticated_client.post("/passwords", json={"name": "GitLab", "username": "gitlab@example.com", "password": "Password2!"})
+    authenticated_client.post("/passwords", json={"name": "Gmail", "username": "gmail@example.com", "password": "Password3!"})
+    authenticated_client.post("/passwords", json={"name": "GitKraken", "username": "gitkraken@example.com", "password": "Password4!"})
+
+    response = authenticated_client.get("/passwords?q=Git&limit=2&offset=1")
+
+    assert response.status_code == 200
+
+    passwords = response.json()
+
+    assert len(passwords) == 2
+    assert passwords[0]["name"] == "GitLab"
+    assert passwords[1]["name"] == "GitKraken"
+
+
+def test_passwords_invalid_pagination(authenticated_client):
+    response = authenticated_client.get("/passwords?limit=0")
+
+    assert response.status_code == 422
+
+    response = authenticated_client.get("/passwords?limit=101")
+
+    assert response.status_code == 422
+
+    response = authenticated_client.get("/passwords?offset=-1")
+
+    assert response.status_code == 422
