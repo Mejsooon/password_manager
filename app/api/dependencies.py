@@ -1,4 +1,4 @@
-from fastapi import Cookie, HTTPException, status, Request
+from fastapi import Request
 from app.models.models import User
 from app.services import auth_service
 from app.core.exceptions import SessionInvalidError
