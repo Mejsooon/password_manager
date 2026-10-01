@@ -11,4 +11,10 @@ class PasswordResponse(BaseModel):
     id: int
     name: str
     username: str | None
+
+
+class PasswordDetailResponse(BaseModel):
+    id: int
+    name: str
+    username: str | None
     password: str

@@ -1,8 +1,19 @@
 from app.crypto.password_crypto import decrypt_password, encrypt_password
-from app.models.models import User, Password
+from app.models.models import User, Password, DecryptedPassword
 from app.repositories import password_repository
 from app.schemas.password import PasswordCreate
 from app.core.exceptions import PasswordNotFoundError
+
+
+def _decrypt_password(password: Password) -> DecryptedPassword:
+    return DecryptedPassword(
+        id=password.id,
+        user_id=password.user_id,
+        name=password.name,
+        username=password.username,
+        password=decrypt_password(password.nonce, password.ciphertext),
+        created_at=password.created_at,
+    )
 
 
 def create_password(current_user: User, password_data: PasswordCreate) -> Password:
@@ -21,25 +32,31 @@ def create_password(current_user: User, password_data: PasswordCreate) -> Passwo
     return password_repository.save(password)
 
 
-def get_passwords(current_user: User, search: str | None = None, limit: int = 20, offset: int = 0) -> list[Password]:
+def get_passwords(
+    current_user: User,
+    search: str | None = None,
+    limit: int = 20,
+    offset: int = 0,
+) -> list[Password]:
 
-    passwords = password_repository.find_all_by_user_id(user_id=current_user.id, search=search, limit=limit, offset=offset)
+    return password_repository.find_all_by_user_id(
+        user_id=current_user.id,
+        search=search,
+        limit=limit,
+        offset=offset,
+    )
 
-    for password in passwords:
-        password.ciphertext = decrypt_password(password.nonce, password.ciphertext)
 
-    return passwords
-
-
-def get_password(current_user: User, password_id: int) -> Password:
-    password = password_repository.find_by_id(password_id=password_id, user_id=current_user.id)
+def get_password(current_user: User, password_id: int) -> DecryptedPassword:
+    password = password_repository.find_by_id(
+        password_id=password_id,
+        user_id=current_user.id,
+    )
 
     if password is None:
         raise PasswordNotFoundError()
 
-    password.ciphertext = decrypt_password(password.nonce, password.ciphertext)
-
-    return password
+    return _decrypt_password(password)
 
 
 def delete_password(current_user: User, password_id: int) -> None:

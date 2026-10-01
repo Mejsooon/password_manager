@@ -28,3 +28,13 @@ class Password:
     nonce: str
     ciphertext: str
     created_at: datetime | None = None
+
+
+@dataclass
+class DecryptedPassword:
+    id: int | None
+    user_id: int
+    name: str
+    username: str | None
+    password: str
+    created_at: datetime | None = None

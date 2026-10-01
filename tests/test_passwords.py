@@ -44,11 +44,8 @@ def test_create_password(authenticated_client):
 
 
 def test_get_passwords(authenticated_client):
-    authenticated_client.post("/passwords",
-                              json={"name": "GitHub", "username": "mikolaj@example.com", "password": "GitHubPassword!"})
-
-    authenticated_client.post("/passwords",
-                              json={"name": "Gmail", "username": "mikolaj@gmail.com", "password": "GmailPassword!"})
+    authenticated_client.post("/passwords", json={"name": "GitHub", "username": "mikolaj@example.com", "password": "GitHubPassword!"})
+    authenticated_client.post("/passwords", json={"name": "Gmail", "username": "mikolaj@gmail.com", "password": "GmailPassword!"})
 
     response = authenticated_client.get("/passwords")
 
@@ -59,10 +56,11 @@ def test_get_passwords(authenticated_client):
     assert len(passwords) == 2
     assert passwords[0]["name"] == "GitHub"
     assert passwords[0]["username"] == "mikolaj@example.com"
-    assert passwords[0]["password"] == "GitHubPassword!"
     assert passwords[1]["name"] == "Gmail"
     assert passwords[1]["username"] == "mikolaj@gmail.com"
-    assert passwords[1]["password"] == "GmailPassword!"
+
+    assert "password" not in passwords[0]
+    assert "password" not in passwords[1]
 
 
 def test_get_password(authenticated_client):
@@ -82,6 +80,18 @@ def test_get_password(authenticated_client):
     }
 
 
+def test_get_passwords_does_not_return_password(authenticated_client):
+    authenticated_client.post("/passwords", json={"name": "GitHub", "username": "mikolaj@example.com", "password": "SuperTajneHaslo123!"})
+
+    response = authenticated_client.get("/passwords")
+
+    assert response.status_code == 200
+
+    password = response.json()[0]
+
+    assert "password" not in password
+
+
 def test_search_passwords(authenticated_client):
     authenticated_client.post("/passwords", json={"name": "GitHub", "username": "mikolaj@example.com", "password": "GitHubPassword!"})
     authenticated_client.post("/passwords", json={"name": "Gmail", "username": "mikolaj@gmail.com", "password": "GmailPassword!"})
@@ -95,7 +105,7 @@ def test_search_passwords(authenticated_client):
     assert len(passwords) == 1
     assert passwords[0]["name"] == "GitHub"
     assert passwords[0]["username"] == "mikolaj@example.com"
-    assert passwords[0]["password"] == "GitHubPassword!"
+    assert "password" not in passwords[0]
 
 
 def test_search_passwords_by_username(authenticated_client):
@@ -111,7 +121,7 @@ def test_search_passwords_by_username(authenticated_client):
     assert len(passwords) == 1
     assert passwords[0]["name"] == "GitHub"
     assert passwords[0]["username"] == "mikolaj@example.com"
-    assert passwords[0]["password"] == "GitHubPassword!"
+    assert "password" not in passwords[0]
 
 
 def test_search_passwords_no_results(authenticated_client):
