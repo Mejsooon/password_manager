@@ -22,7 +22,8 @@ def find_by_id(password_id: int, user_id: int) -> Password | None:
     return row_to_password(row)
 
 
-def find_all_by_user_id(user_id: int, search: str | None = None) -> list[Password]:
+def find_all_by_user_id(user_id: int,search: str | None = None, limit: int = 20,offset: int = 0) -> list[Password]:
+
     query = "SELECT id, user_id, name, username, nonce, ciphertext, created_at FROM passwords WHERE user_id = %s"
 
     params = [user_id]
@@ -32,7 +33,8 @@ def find_all_by_user_id(user_id: int, search: str | None = None) -> list[Passwor
         search_pattern = f"%{search}%"
         params.extend([search_pattern, search_pattern])
 
-    query += " ORDER BY id"
+    query += " ORDER BY id LIMIT %s OFFSET %s"
+    params.extend([limit, offset])
 
     rows = execute(query, tuple(params), fetch="all")
 
