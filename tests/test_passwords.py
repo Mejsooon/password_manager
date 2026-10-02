@@ -176,3 +176,32 @@ def test_unauthenticated_user_cannot_access_passwords(client):
 
     assert response.status_code == 401
     assert response.json() == {"detail": "Invalid or expired session"}
+
+
+def test_delete_password(authenticated_client):
+    create_response = authenticated_client.post(
+        "/passwords",
+        json={
+            "name": "GitHub",
+            "username": "mikolaj@example.com",
+            "password": "SuperTajneHaslo123!",
+        },
+    )
+
+    password_id = cast(int, create_response.json()["id"])
+
+    response = authenticated_client.delete(f"/passwords/{password_id}")
+
+    assert response.status_code == 204
+
+    get_response = authenticated_client.get(f"/passwords/{password_id}")
+
+    assert get_response.status_code == 404
+    assert get_response.json() == {"detail": "Password not found"}
+
+
+def test_delete_nonexistent_password(authenticated_client):
+    response = authenticated_client.delete("/passwords/999999")
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Password not found"}

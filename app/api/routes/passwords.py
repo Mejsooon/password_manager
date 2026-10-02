@@ -101,3 +101,17 @@ def update_password(
         username=password.username,
         password=password_data.password,
     )
+
+
+@router.delete(
+    "/{password_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_password(
+    password_id: int,
+    current_user: User = Depends(get_current_user),
+):
+    password_service.delete_password(
+        current_user=current_user,
+        password_id=password_id,
+    )
