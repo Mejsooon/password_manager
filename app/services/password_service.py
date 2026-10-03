@@ -22,27 +22,16 @@ def create_password(current_user: User, password_data: PasswordCreate) -> Passwo
 
 
 def get_passwords(current_user: User) -> list[Password]:
-    return password_repository.find_all_by_user_id(
-        user_id=current_user.id,
-    )
+    return password_repository.find_all_by_user_id(user_id=current_user.id)
 
 
-def get_password(
-    current_user: User,
-    password_id: int,
-) -> DecryptedPassword:
-    password = password_repository.find_by_id(
-        password_id=password_id,
-        user_id=current_user.id,
-    )
+def get_password(current_user: User,password_id: int) -> DecryptedPassword:
+    password = password_repository.find_by_id(password_id=password_id,user_id=current_user.id)
 
     if password is None:
         raise PasswordNotFoundError()
 
-    decrypted_password = decrypt_password(
-        password.nonce,
-        password.ciphertext,
-    )
+    decrypted_password = decrypt_password(password.nonce,password.ciphertext)
 
     return DecryptedPassword(
         id=password.id,
@@ -54,15 +43,8 @@ def get_password(
     )
 
 
-def update_password(
-    current_user: User,
-    password_id: int,
-    password_data: PasswordCreate,
-) -> Password:
-    password = password_repository.find_by_id(
-        password_id=password_id,
-        user_id=current_user.id,
-    )
+def update_password(current_user: User,password_id: int,password_data: PasswordCreate) -> Password:
+    password = password_repository.find_by_id(password_id=password_id,user_id=current_user.id)
 
     if password is None:
         raise PasswordNotFoundError()
@@ -77,19 +59,10 @@ def update_password(
     return password_repository.update(password)
 
 
-def delete_password(
-    current_user: User,
-    password_id: int,
-) -> None:
-    password = password_repository.find_by_id(
-        password_id=password_id,
-        user_id=current_user.id,
-    )
+def delete_password(current_user: User,password_id: int) -> None:
+    password = password_repository.find_by_id(password_id=password_id,user_id=current_user.id)
 
     if password is None:
         raise PasswordNotFoundError()
 
-    password_repository.delete_by_id(
-        password_id=password_id,
-        user_id=current_user.id,
-    )
+    password_repository.delete_by_id(password_id=password_id,user_id=current_user.id)

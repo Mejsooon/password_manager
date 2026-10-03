@@ -12,12 +12,8 @@ def row_to_user(row: dict) -> User:
 
 
 def find_by_username(username: str) -> User | None:
-    row = execute(
-        "SELECT id, username, password_hash, created_at "
-        "FROM users WHERE username = %s",
-        (username,),
-        fetch="one",
-    )
+    row = execute("SELECT id, username, password_hash, created_at FROM users WHERE username = %s",
+        (username,),fetch="one")
 
     if row is None:
         return None
@@ -26,12 +22,8 @@ def find_by_username(username: str) -> User | None:
 
 
 def find_by_id(user_id: int) -> User | None:
-    row = execute(
-        "SELECT id, username, password_hash, created_at "
-        "FROM users WHERE id = %s",
-        (user_id,),
-        fetch="one",
-    )
+    row = execute("SELECT id, username, password_hash, created_at FROM users WHERE id = %s",
+        (user_id,),fetch="one",)
 
     if row is None:
         return None
@@ -40,10 +32,8 @@ def find_by_id(user_id: int) -> User | None:
 
 
 def save(user: User) -> User:
-    new_id = execute(
-        "INSERT INTO users (username, password_hash) VALUES (%s, %s)",
-        (user.username, user.password_hash),
-    )
+    new_id = execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)",
+        (user.username, user.password_hash))
 
     return User(
         id=int(new_id),

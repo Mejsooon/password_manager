@@ -4,11 +4,7 @@ from datetime import datetime, timedelta, timezone
 
 import bcrypt
 
-from app.core.exceptions import (
-    InvalidCredentialsError,
-    SessionInvalidError,
-    UsernameAlreadyExistsError,
-)
+from app.core.exceptions import (InvalidCredentialsError,SessionInvalidError,UsernameAlreadyExistsError)
 from app.models.models import Session, User
 from app.repositories import session_repository, user_repository
 from app.schemas.auth import UserCreate
@@ -41,10 +37,7 @@ def authenticate(username: str, password: str) -> User:
     if user is None:
         raise InvalidCredentialsError()
 
-    password_matches = bcrypt.checkpw(
-        password.encode("utf-8"),
-        user.password_hash.encode("utf-8"),
-    )
+    password_matches = bcrypt.checkpw(password.encode("utf-8"), user.password_hash.encode("utf-8"))
 
     if not password_matches:
         raise InvalidCredentialsError()
@@ -55,13 +48,9 @@ def authenticate(username: str, password: str) -> User:
 def create_session(user_id: int) -> str:
     session_token = secrets.token_urlsafe(32)
 
-    token_hash = hashlib.sha256(
-        session_token.encode("utf-8")
-    ).hexdigest()
+    token_hash = hashlib.sha256(session_token.encode("utf-8")).hexdigest()
 
-    expires_at = (
-        datetime.now(timezone.utc) + SESSION_DURATION
-    ).replace(tzinfo=None)
+    expires_at = (datetime.now(timezone.utc) + SESSION_DURATION).replace(tzinfo=None)
 
     session = Session(
         id=None,
@@ -77,17 +66,13 @@ def create_session(user_id: int) -> str:
 
 
 def logout(session_token: str) -> None:
-    token_hash = hashlib.sha256(
-        session_token.encode("utf-8")
-    ).hexdigest()
+    token_hash = hashlib.sha256(session_token.encode("utf-8")).hexdigest()
 
     session_repository.delete_by_token_hash(token_hash)
 
 
 def get_current_user(session_token: str) -> User:
-    token_hash = hashlib.sha256(
-        session_token.encode("utf-8")
-    ).hexdigest()
+    token_hash = hashlib.sha256(session_token.encode("utf-8")).hexdigest()
 
     session = session_repository.find_by_token_hash(token_hash)
 

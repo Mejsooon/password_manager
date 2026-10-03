@@ -15,13 +15,8 @@ def row_to_password(row: dict) -> Password:
 
 
 def find_by_id(password_id: int, user_id: int) -> Password | None:
-    row = execute(
-        "SELECT id, user_id, name, username, nonce, ciphertext, created_at "
-        "FROM passwords "
-        "WHERE id = %s AND user_id = %s",
-        (password_id, user_id),
-        fetch="one",
-    )
+    row = execute("SELECT id, user_id, name, username, nonce, ciphertext, created_at FROM passwords WHERE id = %s AND user_id = %s",
+        (password_id, user_id),fetch="one")
 
     if row is None:
         return None
@@ -30,31 +25,15 @@ def find_by_id(password_id: int, user_id: int) -> Password | None:
 
 
 def find_all_by_user_id(user_id: int) -> list[Password]:
-    rows = execute(
-        "SELECT id, user_id, name, username, nonce, ciphertext, created_at "
-        "FROM passwords "
-        "WHERE user_id = %s "
-        "ORDER BY id",
-        (user_id,),
-        fetch="all",
-    )
+    rows = execute("SELECT id, user_id, name, username, nonce, ciphertext, created_at FROM passwords WHERE user_id = %s ORDER BY id",
+        (user_id,),fetch="all")
 
     return [row_to_password(row) for row in rows]
 
 
 def save(password: Password) -> Password:
-    new_id = execute(
-        "INSERT INTO passwords "
-        "(user_id, name, username, nonce, ciphertext) "
-        "VALUES (%s, %s, %s, %s, %s)",
-        (
-            password.user_id,
-            password.name,
-            password.username,
-            password.nonce,
-            password.ciphertext,
-        ),
-    )
+    new_id = execute("INSERT INTO passwords (user_id, name, username, nonce, ciphertext) VALUES (%s, %s, %s, %s, %s)",
+        (password.user_id,password.name,password.username,password.nonce,password.ciphertext,))
 
     return Password(
         id=int(new_id),
@@ -68,28 +47,13 @@ def save(password: Password) -> Password:
 
 
 def update(password: Password) -> Password:
-    execute(
-        "UPDATE passwords "
-        "SET name = %s, username = %s, nonce = %s, ciphertext = %s "
-        "WHERE id = %s AND user_id = %s",
-        (
-            password.name,
-            password.username,
-            password.nonce,
-            password.ciphertext,
-            password.id,
-            password.user_id,
-        ),
-    )
+    execute("UPDATE passwords SET name = %s, username = %s, nonce = %s, ciphertext = %s WHERE id = %s AND user_id = %s",
+        (password.name,password.username,password.nonce,password.ciphertext,password.id,password.user_id,))
 
     return password
 
 
 def delete_by_id(password_id: int, user_id: int) -> bool:
-    execute(
-        "DELETE FROM passwords "
-        "WHERE id = %s AND user_id = %s",
-        (password_id, user_id),
-    )
+    execute("DELETE FROM passwords WHERE id = %s AND user_id = %s",(password_id, user_id))
 
     return True

@@ -13,12 +13,8 @@ def row_to_session(row: dict) -> Session:
 
 
 def find_by_token_hash(token_hash: str) -> Session | None:
-    row = execute(
-        "SELECT id, user_id, token_hash, expires_at, created_at "
-        "FROM sessions WHERE token_hash = %s",
-        (token_hash,),
-        fetch="one",
-    )
+    row = execute("SELECT id, user_id, token_hash, expires_at, created_at FROM sessions WHERE token_hash = %s",
+        (token_hash,),fetch="one")
 
     if row is None:
         return None
@@ -27,23 +23,12 @@ def find_by_token_hash(token_hash: str) -> Session | None:
 
 
 def delete_by_token_hash(token_hash: str) -> None:
-    execute(
-        "DELETE FROM sessions WHERE token_hash = %s",
-        (token_hash,),
-    )
+    execute("DELETE FROM sessions WHERE token_hash = %s",(token_hash,))
 
 
 def save(session: Session) -> Session:
-    new_id = execute(
-        "INSERT INTO sessions "
-        "(user_id, token_hash, expires_at) "
-        "VALUES (%s, %s, %s)",
-        (
-            session.user_id,
-            session.token_hash,
-            session.expires_at,
-        ),
-    )
+    new_id = execute("INSERT INTO sessions (user_id, token_hash, expires_at) VALUES (%s, %s, %s)",
+        (session.user_id, session.token_hash, session.expires_at))
 
     return Session(
         id=int(new_id),

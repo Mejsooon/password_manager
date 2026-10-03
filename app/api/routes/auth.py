@@ -6,37 +6,22 @@ from app.schemas.auth import UserCreate, UserLogin, UserResponse
 from app.services import auth_service
 
 
-router = APIRouter(
-    prefix="/auth",
-    tags=["Authentication"],
-)
+router = APIRouter(prefix="/auth",tags=["Authentication"])
 
 
 SESSION_COOKIE_NAME = "session_token"
 SESSION_DURATION_SECONDS = 60 * 60 * 24 * 7
 
 
-@router.post(
-    "/register",
-    response_model=UserResponse,
-    status_code=status.HTTP_201_CREATED,
-)
+@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def register(user_data: UserCreate):
     return auth_service.register_user(user_data)
 
 
-@router.post(
-    "/login",
-    response_model=UserResponse,
-)
-def login(
-    credentials: UserLogin,
-    response: Response,
-):
-    user = auth_service.authenticate(
-        username=credentials.username,
-        password=credentials.password,
-    )
+@router.post("/login", response_model=UserResponse)
+def login(credentials: UserLogin, response: Response):
+
+    user = auth_service.authenticate(username=credentials.username, password=credentials.password)
 
     session_token = auth_service.create_session(user.id)
 
@@ -53,30 +38,16 @@ def login(
     return user
 
 
-@router.post(
-    "/logout",
-    status_code=status.HTTP_204_NO_CONTENT,
-)
-def logout(
-    request: Request,
-    response: Response,
-):
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(request: Request, response: Response):
     session_token = request.cookies.get(SESSION_COOKIE_NAME)
 
     if session_token is not None:
         auth_service.logout(session_token)
 
-    response.delete_cookie(
-        key=SESSION_COOKIE_NAME,
-        path="/",
-    )
+    response.delete_cookie(key=SESSION_COOKIE_NAME, path="/")
 
 
-@router.get(
-    "/me",
-    response_model=UserResponse,
-)
-def get_me(
-    current_user: User = Depends(get_current_user),
-):
+@router.get("/me", response_model=UserResponse)
+def get_me(current_user: User = Depends(get_current_user)):
     return current_user
